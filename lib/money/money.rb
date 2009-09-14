@@ -79,10 +79,12 @@ class Money
 
   # Do two money objects equal? Only works if both objects are of the same currency
   def ==(other_money)
+    other_money = other_money.to_money
     cents == other_money.cents && bank.same_currency?(currency, other_money.currency)
   end
 
   def <=>(other_money)
+    other_money = other_money.to_money
     if bank.same_currency?(currency, other_money.currency)
       cents <=> other_money.cents
     else
@@ -91,6 +93,7 @@ class Money
   end
 
   def +(other_money)
+    other_money = other_money.to_money
     if currency == other_money.currency
       Money.new(cents + other_money.cents, other_money.currency)
     else
@@ -99,6 +102,7 @@ class Money
   end
 
   def -(other_money)
+    other_money = other_money.to_money
     if currency == other_money.currency
       Money.new(cents - other_money.cents, other_money.currency)
     else
@@ -163,31 +167,31 @@ class Money
   # Whether a money symbol should be prepended to the result string. The default is true.
   # This method attempts to pick a symbol that's suitable for the given currency.
   #
-  #  Money.new(100, :currency => "USD")  => "$1.00"
-  #  Money.new(100, :currency => "GBP")  => "£1.00"
-  #  Money.new(100, :currency => "EUR")  => "€1.00"
+  #  Money.new(100, "USD")  => "$1.00"
+  #  Money.new(100, "GBP")  => "£1.00"
+  #  Money.new(100, "EUR")  => "€1.00"
   #  
   #  # Same thing.
-  #  Money.new(100, :currency => "USD").format(:symbol => true)  => "$1.00"
-  #  Money.new(100, :currency => "GBP").format(:symbol => true)  => "£1.00"
-  #  Money.new(100, :currency => "EUR").format(:symbol => true)  => "€1.00"
+  #  Money.new(100, "USD").format(:symbol => true)  => "$1.00"
+  #  Money.new(100, "GBP").format(:symbol => true)  => "£1.00"
+  #  Money.new(100, "EUR").format(:symbol => true)  => "€1.00"
   #
   # You can specify a false expression or an empty string to disable prepending
   # a money symbol:
   #
-  #  Money.new(100, :currency => "USD").format(:symbol => false)  => "1.00"
-  #  Money.new(100, :currency => "GBP").format(:symbol => nil)    => "1.00"
-  #  Money.new(100, :currency => "EUR").format(:symbol => "")     => "1.00"
+  #  Money.new(100, "USD").format(:symbol => false)  => "1.00"
+  #  Money.new(100, "GBP").format(:symbol => nil)    => "1.00"
+  #  Money.new(100, "EUR").format(:symbol => "")     => "1.00"
   #
   #  
   # If the symbol for the given currency isn't known, then it will default
   # to "$" as symbol:
   #
-  #  Money.new(100, :currency => "AWG").format(:symbol => true)  => "$1.00"
+  #  Money.new(100, "AWG").format(:symbol => true)  => "$1.00"
   #
   # You can specify a string as value to enforce using a particular symbol:
   #
-  #  Money.new(100, :currency => "AWG").format(:symbol => "ƒ")   => "ƒ1.00"
+  #  Money.new(100, "AWG").format(:symbol => "ƒ")   => "ƒ1.00"
   #
   # === +:html+
   #
@@ -207,18 +211,14 @@ class Money
       end
     end
 
-    if rules.has_key?(:symbol)
-      if rules[:symbol] === true
-        symbol = SYMBOLS[currency[:currency]] || "$"
-      elsif rules[:symbol]
-        symbol = rules[:symbol]
-      else
-        symbol = ""
-      end
+    if !rules.has_key?(:symbol) || rules[:symbol] === true
+        symbol = SYMBOLS[currency] || "$"
+    elsif rules[:symbol]
+      symbol = rules[:symbol]
     else
-      symbol = "$"
+      symbol = ""
     end
-    
+
     if rules[:no_cents]
       formatted = sprintf("#{symbol}%d", cents.to_f / 100)
     else

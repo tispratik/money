@@ -49,6 +49,19 @@ describe Money do
     Money.new(1_00, "USD").should_not == Money.new(99_00, "EUR")
   end
   
+  specify "#== returns true if compared with a string money value" do
+    Money.new(1_00, "USD").should == "1.00"
+    Money.new(1_00, "USD").should_not == "2.00"
+    Money.new(1_00, "GBP").should_not == "1.00"
+  end
+  
+  specify "#== returns true if compared with a numeric money value" do
+    Money.new(1_00, "USD").should == 1
+    Money.new(1_57, "USD").should == 1.57
+    Money.new(1_00, "USD").should_not == 2
+    Money.new(1_00, "GBP").should_not == 1
+  end
+  
   specify "#* multiplies the money's amount by the multiplier while retaining the currency" do
     (Money.new(1_00, "USD") * 10).should == Money.new(10_00, "USD")
   end
@@ -129,11 +142,11 @@ describe Money do
     end
     
     specify "#format(:symbol => a symbol string) uses the given value as the money symbol" do
-      Money.new(100, :currency => "GBP").format(:symbol => "£").should == "£1.00"
+      Money.new(100, "USD").format(:symbol => "£").should == "£1.00"
     end
     
     specify "#format(:symbol => true) returns symbol based on the given currency code" do
-      one = Proc.new {|currency| Money.new(100, :currency => currency).format(:symbol => true) }
+      one = Proc.new {|currency| Money.new(100, currency).format(:symbol => true) }
 
       # Pounds
       one["GBP"].should == "£1.00"
@@ -164,17 +177,17 @@ describe Money do
     end
     
     specify "#format(:symbol => true) returns $ when currency code is not recognized" do
-      Money.new(100, :currency => "XYZ").format(:symbol => true).should == "$1.00"
+      Money.new(100, "XYZ").format(:symbol => true).should == "$1.00"
     end
     
     specify "#format(:symbol => some non-Boolean value that evaluates to true) returs symbol based on the given currency code" do
-      Money.new(100, :currency => "GBP").format(:symbol => true).should == "£1.00"
-      Money.new(100, :currency => "EUR").format(:symbol => true).should == "€1.00"
-      Money.new(100, :currency => "SEK").format(:symbol => true).should == "kr1.00"
+      Money.new(100, "GBP").format(:symbol => true).should == "£1.00"
+      Money.new(100, "EUR").format(:symbol => true).should == "€1.00"
+      Money.new(100, "SEK").format(:symbol => true).should == "kr1.00"
     end
     
     specify "#format with :symbol == "", nil or false returns the amount without a symbol" do
-      money = Money.new(100, :currency => "GBP")
+      money = Money.new(100, "GBP")
       money.format(:symbol => "").should == "1.00"
       money.format(:symbol => nil).should == "1.00"
       money.format(:symbol => false).should == "1.00"
@@ -200,12 +213,32 @@ describe "Actions involving two Money objects" do
       (Money.new(1_00, "USD") <=> Money.new(2_00, "USD")).should < 0
     end
     
+    specify "#<=> compares the two objects when other is a string' amounts" do
+      (Money.new(1_00, "USD") <=> "1.00").should == 0
+      (Money.new(1_00, "USD") <=> ".99").should > 0
+      (Money.new(1_00, "USD") <=> "2.00").should < 0
+    end
+    
+    specify "#<=> compares the two objects when other is a numeric' amounts" do
+      (Money.new(1_00, "USD") <=> 1).should == 0
+      (Money.new(1_00, "USD") <=> 0.99).should > 0
+      (Money.new(1_00, "USD") <=> 2.00).should < 0
+    end
+    
     specify "#+ adds the other object's amount to the current object's amount while retaining the currency" do
       (Money.new(10_00, "USD") + Money.new(90, "USD")).should == Money.new(10_90, "USD")
     end
     
+    specify "#+ adds the other object's amount to the current object's amount while retaining the currency when passed a string" do
+      (Money.new(10_00, "USD") + ".90").should == Money.new(10_90, "USD")
+    end
+    
+    specify "#+ adds the other object's amount to the current object's amount while retaining the currency when passed a string" do
+      (Money.new(10_00, "USD") + 0.90).should == Money.new(10_90, "USD")
+    end
+    
     specify "#- substracts the other object's amount from the current object's amount while retaining the currency" do
-      (Money.new(10_00, "USD") - Money.new(90, "USD")).should == Money.new(9_10, "USD")
+      (Money.new(10_00, "USD") - 0.90).should == Money.new(9_10, "USD")
     end
   end
   
