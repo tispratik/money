@@ -1,13 +1,13 @@
 Gem::Specification.new do |s|
   s.name = "money"
-  s.version = "2.1.4"
+  s.version = "2.1.5"
   s.summary = "Money and currency exchange support library"
-  s.email = "hongli@phusion.nl"
+  s.email = ["hongli@phusion.nl", "mmorga@rackspace.com"]
   s.homepage = "http://money.rubyforge.org/"
   s.description = "Money and currency exchange support library."
   s.has_rdoc = true
   s.rubyforge_project = "money"
-  s.authors = ["Tobias Luetke", "Hongli Lai", "Jeremy McNevin"]
+  s.authors = ["Tobias Luetke", "Hongli Lai", "Jeremy McNevin", "Mark Morga"]
   
   s.files = [
       "README.rdoc", "MIT-LICENSE", "money.gemspec", "Rakefile",
