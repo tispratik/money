@@ -202,6 +202,10 @@ describe Money do
       Money.us_dollar(1_000_000_000_12).format.should == "$1,000,000,000.12"
       Money.us_dollar(1_000_000_000_12).format(:no_cents => true).should == "$1,000,000,000"
     end
+    
+    it "should not insert commas into the result if the :no_commas included" do
+      Money.us_dollar(1_000_000_000_12).format(:no_commas).should == "$1000000000.12"
+    end
   end
 end
 

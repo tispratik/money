@@ -226,8 +226,10 @@ class Money
     end
     
     # Commify ("10000" => "10,000")
-    formatted.gsub!(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
-
+    unless rules[:no_commas]
+      formatted.gsub!(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
+    end
+    
     if rules[:with_currency]
       formatted << " "
       formatted << '<span class="currency">' if rules[:html]
