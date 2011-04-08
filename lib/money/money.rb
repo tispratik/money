@@ -2,6 +2,7 @@ require 'money/variable_exchange_bank'
 
 # Represents an amount of money in a certain currency.
 class Money
+  unloadable # <= That's the ticket!
   include Comparable
 
   attr_reader :cents, :currency, :bank
